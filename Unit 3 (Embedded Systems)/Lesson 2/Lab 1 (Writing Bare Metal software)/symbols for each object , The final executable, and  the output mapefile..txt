@@ -1,0 +1,156 @@
+$ arm-none-eabi-nm.exe app.o
+00000000 T main
+00000000 D string
+         U Uart_String
+
+$ arm-none-eabi-nm.exe uart.o
+00000000 T Uart_String
+
+$ arm-none-eabi-nm.exe startup.o
+         U main
+00000000 T reset
+         U stack_top
+00000008 t stop
+
+$ arm-none-eabi-nm.exe learn-in-depth.elf
+00010010 T main
+00010000 T reset
+000110dc D stack_top
+00010008 t stop
+00010078 D string
+00010028 T Uart_String
+
+
+$ arm-none-eabi-objdump.exe -h app.o
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .text         00000018  00000000  00000000  00000034  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+  1 .data         00000064  00000000  00000000  0000004c  2**2
+                  CONTENTS, ALLOC, LOAD, DATA
+  2 .bss          00000000  00000000  00000000  000000b0  2**0
+                  ALLOC
+  3 .comment      00000012  00000000  00000000  000000b0  2**0
+                  CONTENTS, READONLY
+  4 .ARM.attributes 00000032  00000000  00000000  000000c2  2**0
+                  CONTENTS, READONLY
+
+$ arm-none-eabi-objdump.exe -h uart.o
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .text         00000050  00000000  00000000  00000034  2**2
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  1 .data         00000000  00000000  00000000  00000084  2**0
+                  CONTENTS, ALLOC, LOAD, DATA
+  2 .bss          00000000  00000000  00000000  00000084  2**0
+                  ALLOC
+  3 .comment      00000012  00000000  00000000  00000084  2**0
+                  CONTENTS, READONLY
+  4 .ARM.attributes 00000032  00000000  00000000  00000096  2**0
+                  CONTENTS, READONLY
+
+
+$ arm-none-eabi-objdump.exe -h startup.o
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .text         00000010  00000000  00000000  00000034  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+  1 .data         00000000  00000000  00000000  00000044  2**0
+                  CONTENTS, ALLOC, LOAD, DATA
+  2 .bss          00000000  00000000  00000000  00000044  2**0
+                  ALLOC
+  3 .ARM.attributes 00000022  00000000  00000000  00000044  2**0
+                  CONTENTS, READONLY
+
+
+$ arm-none-eabi-objdump.exe -h learn-in-depth.elf
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .startup      00000010  00010000  00010000  00008000  2**2
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  1 .text         00000068  00010010  00010010  00008010  2**2
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  2 .data         00000064  00010078  00010078  00008078  2**2
+                  CONTENTS, ALLOC, LOAD, DATA
+  3 .ARM.attributes 0000002e  00000000  00000000  000080dc  2**0
+                  CONTENTS, READONLY
+  4 .comment      00000011  00000000  00000000  0000810a  2**0
+                  CONTENTS, READONLY
+
+Map_file
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+Mem              0x00000000         0x04000000         xrw
+*default*        0x00000000         0xffffffff
+
+Linker script and memory map
+
+                0x00010000                . = 0x10000
+
+.startup        0x00010000       0x10
+ startup.o(.text)
+ .text          0x00010000       0x10 startup.o
+                0x00010000                reset
+
+.text           0x00010010       0x68
+ *(.text)
+ .text          0x00010010       0x18 app.o
+                0x00010010                main
+ .text          0x00010028       0x50 uart.o
+                0x00010028                Uart_String
+
+.glue_7         0x00010078        0x0
+ .glue_7        0x00000000        0x0 linker stubs
+
+.glue_7t        0x00010078        0x0
+ .glue_7t       0x00000000        0x0 linker stubs
+
+.vfp11_veneer   0x00010078        0x0
+ .vfp11_veneer  0x00000000        0x0 linker stubs
+
+.v4_bx          0x00010078        0x0
+ .v4_bx         0x00000000        0x0 linker stubs
+
+.iplt           0x00010078        0x0
+ .iplt          0x00000000        0x0 startup.o
+
+.rel.dyn        0x00010078        0x0
+ .rel.iplt      0x00000000        0x0 startup.o
+
+.data           0x00010078       0x64
+ *(.data)
+ .data          0x00010078        0x0 startup.o
+ .data          0x00010078       0x64 app.o
+                0x00010078                string
+ .data          0x000100dc        0x0 uart.o
+
+.igot.plt       0x000100dc        0x0
+ .igot.plt      0x00000000        0x0 startup.o
+
+.bss            0x000100dc        0x0
+ *(.bss)
+ .bss           0x000100dc        0x0 startup.o
+ .bss           0x000100dc        0x0 app.o
+ .bss           0x000100dc        0x0 uart.o
+                0x000110dc                . = (. + 0x1000)
+                0x000110dc                stack_top = .
+LOAD app.o
+LOAD uart.o
+LOAD startup.o
+OUTPUT(learn-in-depth.elf elf32-littlearm)
+
+.ARM.attributes
+                0x00000000       0x2e
+ .ARM.attributes
+                0x00000000       0x22 startup.o
+ .ARM.attributes
+                0x00000022       0x32 app.o
+ .ARM.attributes
+                0x00000054       0x32 uart.o
+
+.comment        0x00000000       0x11
+ .comment       0x00000000       0x11 app.o
+                                 0x12 (size before relaxing)
+ .comment       0x00000000       0x12 uart.o
