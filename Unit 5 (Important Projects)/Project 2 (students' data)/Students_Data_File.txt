@@ -1,0 +1,5 @@
+1 Mostafa Hassan 3.7 10 7 3 24 12 
+2 Asem Elsayed 3.6 9 12 3 1 4
+4 Saeed Fares 3.5 9 8 7 24 12
+3 Mohamed Abdo 3.7 3 10 7 24 12
+5 Abdelrahman Zazou 3.1 3 6 7 1 4
